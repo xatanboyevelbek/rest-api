@@ -16,6 +16,14 @@ app.use((req, res, next) => {
 })
 
 app.use('/feeds',feedsRoutes);
+app.use((error, req, res, next) => {
+    const message = error.message;
+    const status = error.statusCode || 500;
+    res.status(status).json({message: message});
+})
 
-mongoose.connect('')
-app.listen(8080);
+mongoose.connect('mongodb+srv://Elbek:27092001Elbek@cluster0.zvcfv.mongodb.net/main').then(() => {
+    app.listen(8080);
+}).catch(err => {
+    console.log(err);
+})
