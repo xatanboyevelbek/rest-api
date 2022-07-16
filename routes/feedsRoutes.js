@@ -8,5 +8,6 @@ router.post('/post', [
     body('title').isLength({min: 5}),
     body('content').isLength({min: 5})
 ] ,feedsController.postPost);
+router.get('/post/:postId',  feedsController.getPost);
 
 module.exports = router;
