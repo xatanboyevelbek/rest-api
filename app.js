@@ -12,7 +12,7 @@ const filestorage = multer.diskStorage({
         cb(null, 'images');
     },
     filename: (req, file, cb) => {
-        cb(null, uuidv4());
+        cb(null, uuidv4() + '.' + file.mimetype.split('/')[1]);
     }
 });
 
@@ -25,7 +25,7 @@ const fileFilter = (req, file, cb) => {
 }
 
 app.use(bodyParser.json());
-app.use(multer({storage: filestorage, fileFilter: fileFilter}).single('file'));
+app.use(multer({storage: filestorage, fileFilter: fileFilter}).single('image'));
 app.use(express.static(path.join(__dirname, 'images')));
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*'),

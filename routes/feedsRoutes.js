@@ -9,5 +9,10 @@ router.post('/post', [
     body('content').isLength({min: 5})
 ] ,feedsController.postPost);
 router.get('/post/:postId',  feedsController.getPost);
+router.put('/post/:postId', [
+    body('title').isLength({min: 5}),
+    body('content').isLength({min: 5})
+],feedsController.putPost);
+router.delete('/post/:postId', feedsController.deletePost);
 
 module.exports = router;
