@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -25,7 +24,7 @@ const fileFilter = (req, file, cb) => {
     }
 }
 
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(multer({storage: filestorage, fileFilter: fileFilter}).single('image'));
 app.use(express.static(path.join(__dirname, 'images')));
 app.use((req, res, next) => {
