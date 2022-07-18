@@ -5,9 +5,9 @@ const userController = require('../controller/userController');
 const User = require('../model/userModel');
 
 router.put('/signup', [
-    body('email').trim().isEmail().withMessage('Please enter valid email').custom((value, {req}) => {
+    body('email').isEmail().withMessage('Please enter valid email').custom((value, {req}) => {
         return User.findOne({email: value}).then(email => {
-            if(!email){
+            if(email){
                 return Promise.reject('Email is already exits')
             }
         })
@@ -16,5 +16,6 @@ router.put('/signup', [
     body('name').trim().isLength({min: 5}),
     body('status').trim().isLength({min: 0})
 ] ,userController.putSignup);
+router.post('/login', userController.postLogin);
 
 module.exports = router;
