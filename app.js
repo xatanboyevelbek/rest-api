@@ -5,7 +5,8 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const {v4: uuidv4} = require('uuid')
 const app = express();
-const feedsRoutes = require('./routes/feedsRoutes')
+const feedsRoutes = require('./routes/feedsRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const filestorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -35,10 +36,12 @@ app.use((req, res, next) => {
 })
 
 app.use('/feeds',feedsRoutes);
+app.use('/auth', userRoutes);
 app.use((error, req, res, next) => {
     const message = error.message;
     const status = error.statusCode || 500;
-    res.status(status).json({message: message});
+    const data = error.data;
+    res.status(status).json({message: message, data: data});
 })
 
 mongoose.connect('mongodb+srv://Elbek:27092001Elbek@cluster0.zvcfv.mongodb.net/main').then(() => {
