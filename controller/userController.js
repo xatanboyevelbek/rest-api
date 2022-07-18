@@ -11,5 +11,7 @@ exports.putSignup = (req, res, next) => {
         error.data = errors.array();
         throw error;
     }
-    
+    bcrypt.hash(password, 12).then(hashedPassword => {
+        
+    })
 }
