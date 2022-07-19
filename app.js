@@ -2,7 +2,8 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const multer = require('multer');
-const {v4: uuidv4} = require('uuid')
+const {v4: uuidv4} = require('uuid');
+const cors = require('cors');
 const app = express();
 const feedsRoutes = require('./routes/feedsRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -24,15 +25,17 @@ const fileFilter = (req, file, cb) => {
     }
 }
 
+const corsOptions = {
+    origin: '*',
+    methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept', 'X-Requested-With', 'Authorization'],
+    credentials: true,
+}
+
 app.use(express.json());
 app.use(multer({storage: filestorage, fileFilter: fileFilter}).single('image'));
 app.use(express.static(path.join(__dirname, 'images')));
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*'),
-    res.setHeader('Access-Control-Allow-Methods', 'OPTION, GET, POST, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-type, Authorization');
-    next();
-})
+app.use(cors(corsOptions));
 
 app.use('/feeds',feedsRoutes);
 app.use('/auth', userRoutes);

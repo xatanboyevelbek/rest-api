@@ -1,19 +1,13 @@
 const express = require('express');
-const {body} = require('express-validator');
 const router = express.Router();
 const {getPosts, postPost, getPost, putPost, deletePost} = require('../controller/feedsController');
 const {isAuth} = require('../middleware/isAuth');
+const {feedsValidation} = require('../validation/feedsValidation')
 
 router.get('/posts', isAuth, getPosts);
-router.post('/post', [
-    body('title').isLength({min: 5}),
-    body('content').isLength({min: 5})
-] ,postPost);
+router.post('/post', isAuth, feedsValidation ,postPost);
 router.get('/post/:postId', isAuth, getPost);
-router.put('/post/:postId', [
-    body('title').isLength({min: 5}),
-    body('content').isLength({min: 5})
-],putPost);
-router.delete('/post/:postId', deletePost);
+router.put('/post/:postId', isAuth, feedsValidation ,putPost);
+router.delete('/post/:postId', isAuth, deletePost);
 
 module.exports = router;

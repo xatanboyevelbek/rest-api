@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const {validationResult} = require('express-validator');
 const Post = require('../model/postModel');
+const User = require('../model/userModel');
 
 exports.getPosts = (req, res, next) => {
     const queryPage = req.query.page;
@@ -9,7 +10,7 @@ exports.getPosts = (req, res, next) => {
     let totalItem;
     Post.find().countDocuments().then(count => {
         totalItem = count
-        return Post.find().skip((queryPage - 1)*perPage).limit(perPage);
+        return Post.find().populate('creator').skip((queryPage - 1)*perPage).limit(perPage);
     }).then(posts => {
         res.status(200).json({message: 'Fetched posts successfuly', posts: posts, totalItem: totalItem});
     }).catch(err => {
@@ -23,25 +24,31 @@ exports.postPost = (req, res, next) => {
     const title = req.body.title;
     const imageUrl = req.file.path.replace('\\', '/');
     const content = req.body.content;
+    let currentUser;
 
     const errors = validationResult(req);
     if(!errors.isEmpty()){
         const error = new Error('Validation failed. Entered data is incorrect');
-        error.statusCode(422);
+        error.statusCode = 422;
         throw error;
     }
     const post = new Post({
         title: title,
         imageUrl: imageUrl,
         content: content,
-        creator: {
-            name: 'Elbek'
-        }
-    })
-    post.save().then(result => {
+        creator: req.userId
+    });
+    post.save().then(() => {
+        return User.findById(req.userId)
+    }).then(user => {
+        currentUser = user;
+        user.posts.push(post);
+        return user.save();
+    }).then(() => {
         res.status(201).json({
             message: "Post successfuly created",
-            post: result
+            post: post,
+            creator: {_id: currentUser._id, name: currentUser.name}
         })
     }).catch(err => {
         if(!err.statusCode){
@@ -86,6 +93,11 @@ exports.putPost = (req, res, next) => {
             error.statusCode(404);
             throw error;
         }
+        if(post.creator.toString() !== req.userId){
+            const error = new Error('Forbidden error.');
+            error.statusCode = 404;
+            throw error;
+        }
         if(imageUrl !== post.imageUrl){
             clearImage(post.imageUrl);
         }
@@ -117,9 +129,18 @@ exports.deletePost = (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
-        //check logged in user
+        if(post.creator.toString() !== req.userId){
+            const error = new Error('Forbidden error.');
+            error.statusCode = 404;
+            throw error;
+        }
         clearImage(post.imageUrl);
         return Post.findByIdAndRemove(postId)
+    }).then(() => {
+        return User.findById(req.userId)
+    }).then(user => {
+        user.posts.pull(postId);
+        return user.save();
     }).then(() => {
         res.status(200).json({message: 'Successfuly deleted'});
     }).catch(err => {
