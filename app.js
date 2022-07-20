@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -7,6 +8,8 @@ const cors = require('cors');
 const app = express();
 const feedsRoutes = require('./routes/feedsRoutes');
 const userRoutes = require('./routes/userRoutes');
+
+const port = process.env.PORT || 3000
 
 const filestorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -43,11 +46,11 @@ app.use((error, req, res, next) => {
     const message = error.message;
     const status = error.statusCode || 500;
     const data = error.data;
-    res.status(status).json({message: message, data: data});
+    res.status(status).json({message: message});
 })
 
-mongoose.connect('mongodb+srv://Elbek:27092001Elbek@cluster0.zvcfv.mongodb.net/main').then(() => {
-    app.listen(8080);
+mongoose.connect(process.env.MONGODB_URI).then(() => {
+    app.listen(port);
 }).catch(err => {
     console.log(err);
 });

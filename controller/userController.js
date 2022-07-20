@@ -45,7 +45,7 @@ exports.postLogin = (req, res, next) => {
             const token = jwt.sign({
                 email: user.email,
                 userId: user._id.toString()
-            }, 'supersecretapplication', {expiresIn: '1h'});
+            }, process.env.PRIVATE_KEY, {expiresIn: '1h'});
             res.status(200).json({token: token, userId: user._id.toString()});
         })
     }).catch(err => {
