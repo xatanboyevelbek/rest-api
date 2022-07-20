@@ -9,7 +9,7 @@ const app = express();
 const feedsRoutes = require('./routes/feedsRoutes');
 const userRoutes = require('./routes/userRoutes');
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 8080;
 
 const filestorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -50,7 +50,9 @@ app.use((error, req, res, next) => {
 })
 
 mongoose.connect(process.env.MONGODB_URI).then(() => {
-    app.listen(port);
+    app.listen(port, () => {
+        console.log('Server is running on localhost');
+    });
 }).catch(err => {
     console.log(err);
 });
